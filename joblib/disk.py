@@ -67,8 +67,8 @@ def mkdirp(d):
 # then retry up to RM_SUBDIRS_N_RETRY times. If it still fails, raise the
 # exception. this mecanism ensures that the sub-process gc have the time to
 # collect and close the memmaps before we fail.
-RM_SUBDIRS_RETRY_TIME = 0.1
-RM_SUBDIRS_N_RETRY = 5
+RM_SUBDIRS_RETRY_TIME = 1
+RM_SUBDIRS_N_RETRY = 20
 
 
 def rm_subdirs(path, onerror=None):
@@ -114,11 +114,11 @@ def delete_folder(folder_path, onerror=None):
                 try:
                     shutil.rmtree(folder_path, False, None)
                     break
-                except (OSError, WindowsError):
+                except (OSError, WindowsError, PermissionError):
                     err_count += 1
                     if err_count > RM_SUBDIRS_N_RETRY:
                         warnings.warn(
                             "Unable to delete folder {} after {} tentatives."
                             .format(folder_path, RM_SUBDIRS_N_RETRY))
-                        raise
+                        break
                     time.sleep(RM_SUBDIRS_RETRY_TIME)
